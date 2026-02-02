@@ -30,6 +30,11 @@ eventsource-client = "0.11"
 # Additional utilities
 anyhow = "1.0"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio", "tls-rustls", "sqlite", "json", "chrono", "uuid"] }
+# Encryption
+aes-gcm = "0.10"
+base64ct = "=1.6.0"
 
 [dev-dependencies]
 tokio-test = "0.4"
