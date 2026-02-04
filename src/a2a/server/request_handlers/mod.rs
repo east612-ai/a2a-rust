@@ -5,7 +5,9 @@
 
 pub mod request_handler;
 pub mod jsonrpc_handler;
+pub mod default_request_handler;
 
 // Re-export main types for convenience
 pub use request_handler::*;
 pub use jsonrpc_handler::*;
+pub use default_request_handler::*;

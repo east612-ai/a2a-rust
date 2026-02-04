@@ -39,6 +39,7 @@ base64ct = "=1.6.0"
 [dev-dependencies]
 tokio-test = "0.4"
 serde_test = "1.0"
+mockito = "1.4"
 
 [features]
 default = []

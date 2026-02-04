@@ -387,7 +387,7 @@ impl TaskEvent {
 }
 
 /// Wrapper trait for events that have task_id and context_id
-pub trait TaskEventWrapper {
+pub trait TaskEventWrapper: Send + Sync {
     fn task_id(&self) -> &str;
     fn context_id(&self) -> &str;
 }

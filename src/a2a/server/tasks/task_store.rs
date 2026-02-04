@@ -141,20 +141,11 @@ impl TaskStore for DatabaseTaskStore {
 mod tests {
     use super::*;
     use crate::{TaskStatus, TaskState};
-<<<<<<< HEAD
-    use uuid::Uuid;
-=======
->>>>>>> 562f43aa10666416c74b61aa8e63bd12f2664bab
     
     fn create_test_task(id: &str, context_id: &str) -> Task {
         Task {
-<<<<<<< HEAD
-            id: task_id_uuid.to_string(),
-            context_id: context_id_uuid.to_string(),
-=======
             id: id.to_string(),
             context_id: context_id.to_string(),
->>>>>>> 562f43aa10666416c74b61aa8e63bd12f2664bab
             status: TaskStatus {
                 state: TaskState::Submitted,
                 timestamp: Some(chrono::Utc::now().to_rfc3339()),
