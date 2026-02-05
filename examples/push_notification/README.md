@@ -17,6 +17,25 @@
 
 ## 运行示例
 
+### 端口配置
+
+本示例支持通过环境变量配置服务器和客户端的端口，以避免端口冲突：
+
+- `A2A_SERVER_PORT`: A2A 服务器监听端口（默认：8080）
+- `WEBHOOK_PORT`: 客户端 Webhook 接收端口（默认：3000）
+
+#### 使用示例：
+
+```bash
+# 使用自定义端口启动服务器
+A2A_SERVER_PORT=9090 cargo run --example push_notification_server
+
+# 使用自定义端口启动客户端并连接到自定义服务器端口
+A2A_SERVER_PORT=9090 WEBHOOK_PORT=8081 cargo run --example push_notification_client
+```
+
+**重要提示**：如果端口被占用，程序会显示错误信息并退出，请使用上述环境变量指定其他可用端口。
+
 ### 1. 启动 A2A 服务器
 
 在第一个终端中运行：

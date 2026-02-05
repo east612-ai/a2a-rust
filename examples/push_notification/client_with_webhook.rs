@@ -19,11 +19,30 @@ use reqwest;
 #[tokio::main]
 async fn main() {
     // 1. Start the Webhook Receiver in the background
-    let webhook_addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    // Use environment variable or default to 3000
+    let webhook_port: u16 = std::env::var("WEBHOOK_PORT")
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(3000);
+
+    // Use environment variable or default to 8080 for A2A Server
+    let server_port: u16 = std::env::var("A2A_SERVER_PORT")
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(8080);
+    
+    let webhook_addr = SocketAddr::from(([127, 0, 0, 1], webhook_port));
     let app = Router::new().route("/webhook", post(handle_webhook));
     
     println!("Webhook receiver listening at http://{}", webhook_addr);
-    let listener = tokio::net::TcpListener::bind(webhook_addr).await.unwrap();
+    let listener = match tokio::net::TcpListener::bind(webhook_addr).await {
+        Ok(listener) => listener,
+        Err(e) => {
+            eprintln!("Failed to bind to port {}: {}", webhook_port, e);
+            eprintln!("Please ensure the port is not already in use or set WEBHOOK_PORT environment variable to a different port.");
+            std::process::exit(1);
+        }
+    };
     
     // Spawn the webhook server
     tokio::spawn(async move {
@@ -39,8 +58,9 @@ async fn main() {
         vec![Part::text("Hello, please notify me when you are done.".to_string())],
     );
 
+    let webhook_url = format!("http://127.0.0.1:{}/webhook", webhook_port);
     let push_config = PushNotificationConfig::new(
-        Url::parse("http://127.0.0.1:3000/webhook").unwrap()
+        Url::parse(&webhook_url).unwrap()
     ).with_token("secret-client-token".to_string());
 
     let config = MessageSendConfiguration::new()
@@ -50,9 +70,10 @@ async fn main() {
         .with_configuration(config);
 
     // 3. Send the request to the A2A Server
-    println!("Sending message to A2A Server (http://localhost:8080)...");
+    let server_url = format!("http://localhost:{}/message/send", server_port);
+    println!("Sending message to A2A Server ({})...", server_url);
     let client = reqwest::Client::new();
-    let response = client.post("http://localhost:8080/message/send")
+    let response = client.post(&server_url)
         .json(&params)
         .send()
         .await

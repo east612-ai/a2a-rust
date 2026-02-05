@@ -30,6 +30,12 @@ async fn main() {
     // Initialize logging
     tracing_subscriber::fmt::init();
 
+    // Use environment variable or default to 8080
+    let server_port: u16 = std::env::var("A2A_SERVER_PORT")
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(8080);
+
     // 1. Setup Server Components
     let task_store = Arc::new(InMemoryTaskStore::new());
     let config_store = Arc::new(InMemoryPushNotificationConfigStore::new());
@@ -54,9 +60,16 @@ async fn main() {
         .with_state(app_state);
 
     // 3. Start Server
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+    let addr = SocketAddr::from(([127, 0, 0, 1], server_port));
     println!("A2A Server running at http://{}", addr);
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    let listener = match tokio::net::TcpListener::bind(addr).await {
+        Ok(listener) => listener,
+        Err(e) => {
+            eprintln!("Failed to bind to port {}: {}", server_port, e);
+            eprintln!("Please ensure the port is not already in use or set A2A_SERVER_PORT environment variable to a different port.");
+            std::process::exit(1);
+        }
+    };
     axum::serve(listener, app).await.unwrap();
 }
 
